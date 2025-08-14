@@ -6,12 +6,17 @@ const SCALE_FACTOR = 1.2;
 const doc = app.activeDocument;
 const paraStyles = doc.allParagraphStyles;
 paraStyles.forEach((style, ix) => {
-  // Normally the first style is `[No Paragraph Style]`, which is read-only
+  // Normally the first style is `[No Paragraph Style]`, 
+  // which is read-only
   // We must skip it
   if (ix == 0) {
     return;
   }
   const pointSize = style.pointSize;
+  const basedOnSize = style.basedOn.pointSize;
+  if (pointSize === basedOnSize) {
+    return;
+  }
   style.pointSize = pointSize * SCALE_FACTOR;
   //Leading must get some love
   const leading = style.leading;
