@@ -1,26 +1,29 @@
 const app = require('indesign').app;
-const Leading=require('indesign').Leading;
+const Leading = require('indesign').Leading;
 
 // Scale factor for the style, adjust as needed
-const SCALE_FACTOR = 1.2; 
+const SCALE_FACTOR = 1.2;
 const doc = app.activeDocument;
-const paraStyles = doc.allParagraphStyles;
-paraStyles.forEach((style, ix) => {
-  // Normally the first style is `[No Paragraph Style]`, 
-  // which is read-only
-  // We must skip it
-  if (ix == 0) {
-    return;
-  }
-  const pointSize = style.pointSize;
-  const basedOnSize = style.basedOn.pointSize;
-  if (pointSize === basedOnSize) {
-    return;
-  }
-  style.pointSize = pointSize * SCALE_FACTOR;
-  //Leading must get some love
-  const leading = style.leading;
-  if (!Leading.AUTO.equals(leading)) {
-    style.leading = leading * SCALE_FACTOR;
-  }
-});
+
+// Normally the first style is `[No Paragraph Style]`,
+// which is read-only
+// We must skip it
+const paraStyles = doc.allParagraphStyles.slice(1);
+paraStyles
+  .map((paragraphStyle) => {
+    return {
+      style: paragraphStyle,
+      scaledSize: paragraphStyle.pointSize * SCALE_FACTOR,
+      scaledLeading:
+        Leading.AUTO.equals(paragraphStyle.leading) ?
+          Leading.AUTO
+        : paragraphStyle.leading * SCALE_FACTOR,
+    };
+  })
+  .forEach((styleEntry) => {
+    styleEntry.style.pointSize = styleEntry.scaledSize;
+    //Leading must get some love
+    if (!Leading.AUTO.equals(styleEntry.scaledLeading)) {
+      styleEntry.style.leading = styleEntry.scaledLeading;
+    }
+  });
