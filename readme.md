@@ -13,6 +13,7 @@ Here you will find a growing collection of scripts.
 | Script | Type | Description |
 | :--- | :--- | :--- |
 | **scale-paragraph-styles.idjs** | UXP Script | Proportionally scales the font size of each paragraph style, based on a user defined percentage. |
+| **close-all-menu.idjs** | UXP Script | Adds a "Close All" menu to InDesign's File menu, allowing you to close all open documents at once, with or without saving changes. |
 | *More to come...* | | |
 
 ## How to Use These Scripts

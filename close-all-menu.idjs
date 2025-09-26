@@ -1,0 +1,86 @@
+const {
+  app,
+  ScriptLanguage,
+  SaveOptions,
+  LocationOptions,
+  Locale,
+} = require('indesign');
+
+//Localisation
+
+const getLocaleStrings = () => {
+  const locale = app.locale;
+
+  //Other locales can be added here (for the enum values, see https://www.indesignjs.de/extendscriptAPI/indesign-latest/#Locale.html)
+
+  switch (locale) {
+    case Locale.ENGLISH_LOCALE:
+    case Locale.INTERNATIONAL_ENGLISH_LOCALE:
+      return {
+        closeAll: 'Close All',
+        closeAllWithSave: 'Close All with Save',
+        closeAllWithoutSave: 'Close All without Save',
+      };
+    case Locale.ROMANIAN_LOCALE:
+      return {
+        closeAll: 'Închide toate',
+        closeAllWithSave: 'Închide toate cu salvare',
+        closeAllWithoutSave: 'Închide toate fără salvare',
+      };
+    default:
+      return {
+        closeAll: 'Close All',
+        closeAllWithSave: 'Close All with Save',
+        closeAllWithoutSave: 'Close All without Save',
+      };
+  }
+}
+
+const localeStrings = getLocaleStrings();
+
+//Menu actions
+const closeAllMenuAction = app.scriptMenuActions.add(localeStrings.closeAll);
+const closeAllwithSaveMenuAction = app.scriptMenuActions.add(localeStrings.closeAllWithSave);
+const closeAllWithoutSaveMenuAction = app.scriptMenuActions.add(localeStrings.closeAllWithoutSave);
+
+
+//NOTE, the `beforeDisplay` event is wonky, so we'll just use `onInvoke`
+closeAllMenuAction.eventListeners.add('onInvoke', () => {
+  app.documents.everyItem().close();
+});
+
+closeAllwithSaveMenuAction.eventListeners.add('onInvoke', () => {
+  app.documents.everyItem().close(SaveOptions.YES);
+});
+
+closeAllWithoutSaveMenuAction.eventListeners.add('onInvoke', () => {
+  app.documents.everyItem().close(SaveOptions.NO);
+});
+
+const FileMenu = app.doScript(
+  'app.menus.item("$ID/Main").submenus.itemByName("$ID/&File")',
+  ScriptLanguage.JAVASCRIPT
+);
+const CloseMenuEntry = app.doScript(
+  'app.menus.item("$ID/Main").submenus.itemByName("$ID/&File").menuItems.itemByName("$ID/&Close")',
+  ScriptLanguage.JAVASCRIPT
+);
+
+const closeAllMenu = FileMenu.submenus.add(
+  localeStrings.closeAll,
+  LocationOptions.AFTER,
+  CloseMenuEntry
+);
+
+
+closeAllMenu.menuItems.add(closeAllMenuAction);
+closeAllMenu.menuItems.add(closeAllwithSaveMenuAction);
+closeAllMenu.menuItems.add(closeAllWithoutSaveMenuAction);
+
+
+//Empty session function to keep the script running
+async function session() {
+  return new Promise((resolve, reject) => {
+  });
+}
+await session();
